@@ -628,17 +628,15 @@ with tab1:
                     st.metric("🎯 Puntaje", f"{zona_data['puntaje_prioridad']:.3f}")
                     st.metric("📡 Penetración", f"{zona_data['penetracion_internet']*100:.1f}%")
                 
-                st.markdown("---")
-                
-                # Mostrar gráficos en sección amplia debajo del mapa
-                st.markdown("---")
-                st.markdown("### 📊 Gráficos de Análisis")
-                
+            else:
+                st.info("👆 Selecciona un corregimiento en el mapa o en el selector para ver información detallada.")
+        
         # Gráficos en sección amplia (fuera del col_panel)
-        if zona_seleccionada and zona_seleccionada in df_zonas_filtrado['zona'].values:
-            zona_data = df_zonas_filtrado[df_zonas_filtrado['zona'] == zona_seleccionada].iloc[0]
+        if st.session_state.zona_seleccionada and st.session_state.zona_seleccionada in df_zonas_filtrado['zona'].values:
+            zona_data = df_zonas_filtrado[df_zonas_filtrado['zona'] == st.session_state.zona_seleccionada].iloc[0]
             
-            st.markdown(f"### 📈 Análisis Detallado: {zona_seleccionada}")
+            st.markdown("---")
+            st.markdown(f"### 📈 Análisis Detallado: {st.session_state.zona_seleccionada}")
             
             # Tabs para organizar gráficos en espacio amplio
             tab_graficos = st.tabs(["📊 Componentes", "📈 Evolución", "🎯 Comparación", "🔧 Tecnologías", "📡 Radar", "🎯 Meta"])
@@ -666,21 +664,18 @@ with tab1:
             with tab_graficos[5]:
                 fig_meta = crear_indicador_progreso_meta(zona_data, meta_velocidad=25)
                 st.plotly_chart(fig_meta, use_container_width=True, config={'displayModeBar': False})
-                
-                st.markdown("---")
-                
-                # Información adicional
-                st.markdown("### ℹ️ Información Adicional")
-                
-                st.info(f"""
-                **Tipo:** {zona_data['tipo']}  
-                **Sede Educativa:** {'Sí' if zona_data['tiene_sede_educativa'] else 'No'}  
-                **Sede Conectada:** {'Sí' if zona_data['sede_con_conexion'] else 'No'}  
-                **Densidad:** {zona_data['densidad_poblacion']:.2f} hab/km²
-                """)
-                
-            else:
-                st.info("👆 Selecciona un corregimiento en el mapa o en el selector para ver información detallada.")
+            
+            # Información adicional
+            st.markdown("---")
+            st.markdown("### ℹ️ Información Adicional")
+            
+            col_info1, col_info2 = st.columns(2)
+            with col_info1:
+                st.metric("🏙️ Tipo", zona_data['tipo'])
+                st.metric("🏫 Sede Educativa", 'Sí' if zona_data['tiene_sede_educativa'] else 'No')
+            with col_info2:
+                st.metric("📶 Sede Conectada", 'Sí' if zona_data['sede_con_conexion'] else 'No')
+                st.metric("📍 Densidad", f"{zona_data['densidad_poblacion']:.2f} hab/km²")
     else:
         st.warning("⚠️ No hay datos para mostrar con los filtros seleccionados.")
 
